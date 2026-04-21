@@ -1,11 +1,20 @@
 import re
 from urllib.parse import urlparse
+from utils.response import Response
+from bs4 import BeautifulSoup
+
+ALLOWED_DOMAINS = [
+  "ics.uci.edu",
+  "cs.uci.edu",
+  "informatics.uci.edu",
+  "stat.uci.edu"
+]
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
-def extract_next_links(url, resp):
+def extract_next_links(url, resp: Response):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page
@@ -15,7 +24,18 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    extracted = []
+    
+    if resp.status != 200:
+      return extracted
+
+    soup = BeautifulSoup(resp.raw_response.content, "html.parser")
+    for link in soup.find_all('a'):
+      if href := link.get('href'):
+        extracted.append(href)
+
+    
+    return extracted
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -25,6 +45,10 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in {"http", "https"}:
             return False
+
+        if not any(parsed.hostname.endswith(allowed) for allowed in ALLOWED_DOMAINS):
+          return False
+        
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -36,5 +60,5 @@ def is_valid(url):
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print ("TypeError for ", url)
         raise
