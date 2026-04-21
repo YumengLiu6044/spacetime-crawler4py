@@ -12,7 +12,9 @@ ALLOWED_DOMAINS = [
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    for link in links:
+      if is_valid(link):
+        yield link
 
 def extract_next_links(url, resp: Response):
     # Implementation required.
@@ -34,7 +36,6 @@ def extract_next_links(url, resp: Response):
       if href := link.get('href'):
         extracted.append(href)
 
-    
     return extracted
 
 def is_valid(url):
