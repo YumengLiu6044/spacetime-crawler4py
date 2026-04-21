@@ -12,7 +12,6 @@ class Frontier(object):
         self.to_be_downloaded = Queue()
 
         self.saved_lock = RLock()
-        self.download_queue_lock = RLock()
         
         if not os.path.exists(self.config.save_file) and not restart:
             # Save file does not exist, but request to load save.
@@ -43,17 +42,16 @@ class Frontier(object):
           tbd_count = 0
           for url, completed in self.save.values():
               if not completed and is_valid(url):
-                  with self.download_queue_lock:
-                    self.to_be_downloaded.put(url)
+                  self.to_be_downloaded.put(url)
                   tbd_count += 1
+          
           self.logger.info(
               f"Found {tbd_count} urls to be downloaded from {total_count} "
               f"total urls discovered.")
 
     def get_tbd_url(self):
         try:
-            with self.download_queue_lock:
-              return self.to_be_downloaded.get(timeout=3)
+            return self.to_be_downloaded.get(timeout=3)
 
         except IndexError:
             return None
@@ -66,8 +64,7 @@ class Frontier(object):
               self.save[urlhash] = (url, False)
               self.save.sync()
 
-              with self.download_queue_lock:
-                self.to_be_downloaded.put(url)
+              self.to_be_downloaded.put(url)
     
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
