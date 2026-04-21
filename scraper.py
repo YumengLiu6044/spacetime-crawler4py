@@ -10,6 +10,11 @@ ALLOWED_DOMAINS = [
   "stat.uci.edu"
 ]
 
+FORBIDDEN_PATHS = [
+    "/people",
+    "/happening"
+]
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     for link in links:
@@ -49,7 +54,10 @@ def is_valid(url):
 
         if not any(parsed.hostname.endswith(allowed) for allowed in ALLOWED_DOMAINS):
           return False
-        
+
+        if any(parsed.path.startswith(forbidden) for forbidden in FORBIDDEN_PATHS):
+          return False
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
