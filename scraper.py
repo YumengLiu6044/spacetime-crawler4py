@@ -14,8 +14,9 @@ FORBIDDEN_PATHS = [
     "/people",
     "/happening",
     '/events/category',
-    '/events/list',
     '/events/month',
+    '/events/week',
+    '/events/today',
     '/events/tag',
 ]
 

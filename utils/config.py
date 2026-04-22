@@ -1,5 +1,5 @@
 import re
-
+from pathlib import Path
 
 class Config(object):
     def __init__(self, config):
@@ -17,3 +17,8 @@ class Config(object):
         self.time_delay = float(config["CRAWLER"]["POLITENESS"])
 
         self.cache_server = None
+
+        project_root = Path(__file__).parents[1]
+        self.output_root = project_root / config["LOCAL PROPERTIES"]["OUTPUT"]
+        self.index_file = self.output_root / config["LOCAL PROPERTIES"]["INDEX_NAME"]
+        self.pages_folder = self.output_root / config["LOCAL PROPERTIES"]["PAGES"]
