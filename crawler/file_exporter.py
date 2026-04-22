@@ -16,13 +16,14 @@ class FileExporter(Thread):
     def run(self):
         with open(self.config.index_file, "w") as index_file:
             index_writer = csv.writer(index_file)
+            index_writer.writerow(['urlhash', 'url', 'status'])
             while True:
                 if not (queue_node := self.frontier.get_page_from_queue()):
                     self.logger.info("No more file to write. Exiting")
                     break
                 
                 urlhash, url, resp = queue_node
-                index_writer.writerow([urlhash, url])
+                index_writer.writerow([urlhash, url, resp.status])
 
                 with open(self.config.pages_folder / urlhash, "wb") as page_file:
                     page_file.write(resp.raw_response.content if resp.raw_response else b"")
