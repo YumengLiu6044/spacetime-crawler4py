@@ -1,5 +1,5 @@
 import re
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 from utils.response import Response
 from bs4 import BeautifulSoup
 
@@ -12,7 +12,11 @@ ALLOWED_DOMAINS = [
 
 FORBIDDEN_PATHS = [
     "/people",
-    "/happening"
+    "/happening",
+    '/events/category',
+    '/events/list',
+    '/events/month',
+    '/events/tag',
 ]
 
 TRAP_THRESHOLD = 20
@@ -66,6 +70,16 @@ def is_valid(url):
         if len(path.split("/")) > TRAP_THRESHOLD:
             return False
 
+        if params := parsed.query:
+            param_dict = parse_qs(params)
+            if param_dict.get('outlook-ical') == ['1'] or param_dict.get('ical') == ['1']:
+                return False
+            if param_dict.get('eventDisplay') or param_dict.get('tribe-bar-date'):
+                return False
+        
+        if re.match(r"(^/events/\d{4}-\d{2}-\d{2})", path):
+            return False
+
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
@@ -73,7 +87,7 @@ def is_valid(url):
             + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
-            + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|thmx|mso|arff|rtf|jar|csv|ics"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", path.lower())
 
     except ValueError:
