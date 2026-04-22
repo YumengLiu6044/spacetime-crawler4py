@@ -54,13 +54,16 @@ def is_valid(url):
         if parsed.scheme not in {"http", "https"}:
             return False
 
-        if not any(parsed.hostname.endswith(allowed) for allowed in ALLOWED_DOMAINS):
+        if not (hostname := parsed.hostname) or not (path  := parsed.path):
             return False
 
-        if any(parsed.path.startswith(forbidden) for forbidden in FORBIDDEN_PATHS):
+        if not any(hostname.endswith(allowed) for allowed in ALLOWED_DOMAINS):
             return False
 
-        if len(parsed.path.split("/")) > TRAP_THRESHOLD:
+        if any(path.startswith(forbidden) for forbidden in FORBIDDEN_PATHS):
+            return False
+
+        if len(path.split("/")) > TRAP_THRESHOLD:
             return False
 
         return not re.match(
@@ -71,8 +74,7 @@ def is_valid(url):
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", path.lower())
 
-    except TypeError:
-        print ("TypeError for ", url)
-        raise
+    except ValueError:
+        return False

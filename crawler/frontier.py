@@ -23,17 +23,15 @@ class Frontier(object):
             self.logger.info(
                 f"Found save file {self.config.save_file}, deleting it.")
             os.remove(self.config.save_file)
+
         # Load existing save file, or create one if it does not exist.
         self.save = shelve.open(self.config.save_file)
-        if restart:
+        if restart or not self.save:
             for url in self.config.seed_urls:
                 self.add_url(url)
         else:
             # Set the frontier state with contents of save file.
             self._parse_save_file()
-            if not self.save:
-                for url in self.config.seed_urls:
-                    self.add_url(url)
 
     def _parse_save_file(self):
         ''' This function can be overridden for alternate saving techniques. '''
@@ -53,7 +51,7 @@ class Frontier(object):
         try:
             return self.to_be_downloaded.get(timeout=3)
 
-        except IndexError:
+        except Empty:
             return None
 
     def add_url(self, url):
