@@ -57,7 +57,7 @@ class Frontier(object):
 	
 	def get_page_from_queue(self):
 		try:
-			return self.page_queue.get(timeout=5)
+			return self.page_queue.get(timeout=20)
 
 		except Empty:
 			return None
