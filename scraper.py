@@ -15,11 +15,13 @@ FORBIDDEN_PATHS = [
     "/happening"
 ]
 
+TRAP_THRESHOLD = 20
+
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     for link in links:
-      if is_valid(link):
-        yield link
+        if is_valid(link):
+            yield link
 
 def extract_next_links(url, resp: Response):
     # Implementation required.
@@ -34,12 +36,12 @@ def extract_next_links(url, resp: Response):
     extracted = []
     
     if resp.status != 200:
-      return extracted
+        return extracted
 
     soup = BeautifulSoup(resp.raw_response.content, "html.parser")
     for link in soup.find_all('a'):
-      if href := link.get('href'):
-        extracted.append(href)
+        if href := link.get('href'):
+            extracted.append(href)
 
     return extracted
 
@@ -53,10 +55,13 @@ def is_valid(url):
             return False
 
         if not any(parsed.hostname.endswith(allowed) for allowed in ALLOWED_DOMAINS):
-          return False
+            return False
 
         if any(parsed.path.startswith(forbidden) for forbidden in FORBIDDEN_PATHS):
-          return False
+            return False
+
+        if len(parsed.path.split("/")) > TRAP_THRESHOLD:
+            return False
 
         return not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
