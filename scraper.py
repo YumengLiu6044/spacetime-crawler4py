@@ -75,7 +75,7 @@ def is_valid(url):
             param_dict = parse_qs(params)
             if param_dict.get('outlook-ical') == ['1'] or param_dict.get('ical') == ['1']:
                 return False
-            if param_dict.get('eventDisplay') or param_dict.get('tribe-bar-date'):
+            if param_dict.get('eventDisplay') == ['day']:
                 return False
         
         if re.match(r"(^/events/\d{4}-\d{2}-\d{2})", path):
