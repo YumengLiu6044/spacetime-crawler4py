@@ -3,6 +3,9 @@ from utils.config import Config
 from crawler.frontier import Frontier
 from utils import get_logger
 import csv
+import pickle
+import cbor2
+import json
 
 class FileExporter(Thread):
     def __init__(self, frontier: Frontier, config: Config):
@@ -26,7 +29,9 @@ class FileExporter(Thread):
                 index_writer.writerow([urlhash, url, resp.status_code])
 
                 with open(self.config.pages_folder / urlhash, "w") as page_file:
-                    page_file.write(resp.text)
+                    page_obj = cbor2.loads(resp.content)
+                    page_content = pickle.loads(page_obj.get("response"))
+                    page_file.write(page_content.content.decode())
 
                 self.logger.info(f"Saved {url} to {self.config.pages_folder / urlhash}")
 

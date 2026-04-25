@@ -1,6 +1,5 @@
 import re
 from urllib.parse import urlparse, parse_qs
-from requests import Response
 from bs4 import BeautifulSoup
 
 ALLOWED_DOMAINS = [
@@ -28,7 +27,7 @@ def scraper(url, resp):
         if is_valid(link):
             yield link
 
-def extract_next_links(url, resp: Response):
+def extract_next_links(url, resp):
     # Implementation required.
     # url: the URL that was used to get the page
     # resp.url: the actual url of the page

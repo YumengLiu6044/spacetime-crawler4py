@@ -1,5 +1,4 @@
 from threading import Thread
-
 from inspect import getsource
 from utils.download import download
 from utils import get_logger
@@ -24,7 +23,7 @@ class Worker(Thread):
                 break
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
-                f"Downloaded {tbd_url}, status <{resp.status}>, "
+                f"Downloaded {tbd_url}, status <{resp.status_code}>, "
                 f"using cache {self.config.cache_server}.")
             scraped_urls = scraper.scraper(tbd_url, resp)
             for scraped_url in scraped_urls:
