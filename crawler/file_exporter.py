@@ -3,9 +3,6 @@ from utils.config import Config
 from crawler.frontier import Frontier
 from utils import get_logger
 import csv
-import pickle
-import cbor2
-import json
 
 class FileExporter(Thread):
     def __init__(self, frontier: Frontier, config: Config):
