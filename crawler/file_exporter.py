@@ -25,8 +25,14 @@ class FileExporter(Thread):
                 urlhash, url, resp = queue_node
                 index_writer.writerow([urlhash, url, resp.status])
 
-                with open(self.config.pages_folder / urlhash, "wb") as page_file:
-                    page_file.write(resp.raw_response.content if resp.raw_response else b"")
+                with open(self.config.pages_folder / urlhash, "w") as page_file:
+                    try:
+                        page_content = resp.raw_response.content.decode() if resp.raw_response else ""
+                    except UnicodeDecodeError:
+                        page_content = ""
+                    
+                    page_file.write(page_content)
+
 
                 self.logger.info(f"Saved {url} to {self.config.pages_folder / urlhash}")
 
