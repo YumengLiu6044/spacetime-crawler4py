@@ -29,9 +29,13 @@ class FileExporter(Thread):
                 index_writer.writerow([urlhash, url, resp.status_code])
 
                 with open(self.config.pages_folder / urlhash, "w") as page_file:
-                    page_obj = cbor2.loads(resp.content)
-                    page_content = pickle.loads(page_obj.get("response"))
-                    page_file.write(page_content.content.decode())
+                    try:
+                        page_content = resp.raw_response.content.decode() if resp.raw_response else ""
+                    except UnicodeDecodeError:
+                        page_content = ""
+                    
+                    page_file.write(page_content)
+
 
                 self.logger.info(f"Saved {url} to {self.config.pages_folder / urlhash}")
 
