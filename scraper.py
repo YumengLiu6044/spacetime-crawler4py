@@ -1,6 +1,6 @@
 import re
 from urllib.parse import urlparse, parse_qs
-from utils.response import Response
+from requests import Response
 from bs4 import BeautifulSoup
 
 ALLOWED_DOMAINS = [
@@ -40,10 +40,10 @@ def extract_next_links(url, resp: Response):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     extracted = []
     
-    if resp.status != 200:
+    if resp.status_code != 200:
         return extracted
 
-    soup = BeautifulSoup(resp.raw_response.content, "html.parser")
+    soup = BeautifulSoup(resp.text, "html.parser")
     for link in soup.find_all('a'):
         if href := link.get('href'):
             extracted.append(href)

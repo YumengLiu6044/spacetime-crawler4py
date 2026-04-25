@@ -1,6 +1,4 @@
 from threading import Thread
-from queue import Queue
-from pathlib import Path
 from utils.config import Config
 from crawler.frontier import Frontier
 from utils import get_logger
@@ -10,7 +8,9 @@ class FileExporter(Thread):
     def __init__(self, frontier: Frontier, config: Config):
         self.config = config
         self.frontier = frontier
-        self.logger = get_logger(f"FileExporter", self.__class__.__name__)
+
+        logger_name = self.__class__.__name__
+        self.logger = get_logger(logger_name, logger_name)
         super().__init__(daemon=False)
     
     def run(self):
@@ -23,10 +23,10 @@ class FileExporter(Thread):
                     break
                 
                 urlhash, url, resp = queue_node
-                index_writer.writerow([urlhash, url, resp.status])
+                index_writer.writerow([urlhash, url, resp.status_code])
 
-                with open(self.config.pages_folder / urlhash, "wb") as page_file:
-                    page_file.write(resp.raw_response.content if resp.raw_response else b"")
+                with open(self.config.pages_folder / urlhash, "w") as page_file:
+                    page_file.write(resp.text)
 
                 self.logger.info(f"Saved {url} to {self.config.pages_folder / urlhash}")
 
